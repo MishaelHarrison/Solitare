@@ -39,6 +39,14 @@ public class DeckOfCardsImpl implements DeckOfCards {
     }
 
     @Override
+    public DrawResponse drawFromPile(String deckId, String pileName, int amount) {
+        String url = "https://deckofcardsapi.com/api/deck/" + deckId + "/pile/" + pileName + "/draw/?count=" + amount;
+        val res = template.getForEntity(url, DrawResponse.class);
+        logger.trace("status code: "+res.getStatusCode()+" ran request: GET:" + url);
+        return res.getBody();
+    }
+
+    @Override
     public void addToPile(String deckId, String pileName, Card[] cards) {
         String url = "https://deckofcardsapi.com/api/deck/" + deckId + "/pile/" + pileName + "/add/?cards=" + Arrays.stream(cards).map(Card::getCode).collect(Collectors.joining(","));
         val res = template.getForEntity(url, Void.class);

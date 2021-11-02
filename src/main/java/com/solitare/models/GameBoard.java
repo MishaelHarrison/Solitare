@@ -29,9 +29,9 @@ public class GameBoard {
     private int drawDown;
     private List<Card> drawUp;
 
-    private List<Card> winC;
-    private List<Card> winS;
-    private List<Card> winH;
-    private List<Card> winD;
+    private List<Card> win0;
+    private List<Card> win1;
+    private List<Card> win2;
+    private List<Card> win3;
 
 }

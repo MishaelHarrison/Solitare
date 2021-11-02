@@ -34,10 +34,10 @@ public class FullResponse {
         private Pile drawDown;
         private Pile drawUp;
 
-        private Pile winC;
-        private Pile winS;
-        private Pile winH;
-        private Pile winD;
+        private Pile win0;
+        private Pile win1;
+        private Pile win2;
+        private Pile win3;
 
         @Data
         @NoArgsConstructor

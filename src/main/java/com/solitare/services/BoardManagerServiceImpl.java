@@ -3,7 +3,6 @@ package com.solitare.services;
 import com.solitare.models.Card;
 import com.solitare.models.Game;
 import com.solitare.models.GameBoard;
-import com.solitare.models.GameBoardFull;
 import com.solitare.repositories.GameRepo;
 import lombok.val;
 import org.slf4j.Logger;
@@ -42,10 +41,10 @@ public class BoardManagerServiceImpl implements BoardManagerService{
         }
         api.addToPile(deckId, "drawDown", cards.toArray(new Card[0]));
         api.addToPile(deckId, "drawUp", new Card[0]);
-        api.addToPile(deckId, "winC", new Card[0]);
-        api.addToPile(deckId, "winS", new Card[0]);
-        api.addToPile(deckId, "winH", new Card[0]);
-        api.addToPile(deckId, "winD", new Card[0]);
+        api.addToPile(deckId, "win2", new Card[0]);
+        api.addToPile(deckId, "win0", new Card[0]);
+        api.addToPile(deckId, "win1", new Card[0]);
+        api.addToPile(deckId, "win3", new Card[0]);
 
         return id;
     }
@@ -61,10 +60,10 @@ public class BoardManagerServiceImpl implements BoardManagerService{
 
         runners[++index] = api.getPileInfoAsync(deckId, "drawUp").thenAccept(x->ret.setDrawUp(x.getPiles().getDrawUp().getCards()));
 
-        runners[++index] = api.getPileInfoAsync(deckId, "winC").thenAccept(x->ret.setWinC(x.getPiles().getWinC().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "winH").thenAccept(x->ret.setWinC(x.getPiles().getWinH().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "winS").thenAccept(x->ret.setWinC(x.getPiles().getWinS().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "winD").thenAccept(x->ret.setWinC(x.getPiles().getWinD().getCards()));
+        runners[++index] = api.getPileInfoAsync(deckId, "win0").thenAccept(x->ret.setWin0(x.getPiles().getWin0().getCards()));
+        runners[++index] = api.getPileInfoAsync(deckId, "win1").thenAccept(x->ret.setWin1(x.getPiles().getWin1().getCards()));
+        runners[++index] = api.getPileInfoAsync(deckId, "win2").thenAccept(x->ret.setWin2(x.getPiles().getWin2().getCards()));
+        runners[++index] = api.getPileInfoAsync(deckId, "win3").thenAccept(x->ret.setWin3(x.getPiles().getWin3().getCards()));
 
         runners[++index] = api.getPileInfoAsync(deckId, "faceUp0").thenAccept(x->ret.setFaceUp0(x.getPiles().getFaceUp0().getCards()));
         runners[++index] = api.getPileInfoAsync(deckId, "faceUp1").thenAccept(x->ret.setFaceUp1(x.getPiles().getFaceUp1().getCards()));
@@ -84,45 +83,6 @@ public class BoardManagerServiceImpl implements BoardManagerService{
             ret.setFaceDown6(x.getPiles().getFaceDown6().getRemaining());
             ret.setDrawDown(x.getPiles().getDrawDown().getRemaining());
         });
-
-        CompletableFuture.allOf(runners).join();
-
-        return ret;
-    }
-
-    @Override
-    public GameBoardFull getGameFull(int id) throws Exception {
-        GameBoardFull ret = new GameBoardFull();
-        String deckId = gameRepo.findById(id).orElseThrow(Exception::new).getGameId();
-        val runners = new CompletableFuture[20];
-        int index = -1;
-
-        logger.info("querying deck deckid="+deckId);
-
-        runners[++index] = api.getPileInfoAsync(deckId, "drawUp").thenAccept(x->ret.setDrawUp(x.getPiles().getDrawUp().getCards()));
-
-        runners[++index] = api.getPileInfoAsync(deckId, "winC").thenAccept(x->ret.setWinC(x.getPiles().getWinC().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "winH").thenAccept(x->ret.setWinC(x.getPiles().getWinH().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "winS").thenAccept(x->ret.setWinC(x.getPiles().getWinS().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "winD").thenAccept(x->ret.setWinC(x.getPiles().getWinD().getCards()));
-
-        runners[++index] = api.getPileInfoAsync(deckId, "faceUp0").thenAccept(x->ret.setFaceUp0(x.getPiles().getFaceUp0().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "faceUp1").thenAccept(x->ret.setFaceUp1(x.getPiles().getFaceUp1().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "faceUp2").thenAccept(x->ret.setFaceUp2(x.getPiles().getFaceUp2().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "faceUp3").thenAccept(x->ret.setFaceUp3(x.getPiles().getFaceUp3().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "faceUp4").thenAccept(x->ret.setFaceUp4(x.getPiles().getFaceUp4().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "faceUp5").thenAccept(x->ret.setFaceUp5(x.getPiles().getFaceUp5().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "faceUp6").thenAccept(x->ret.setFaceUp6(x.getPiles().getFaceUp6().getCards()));
-
-        runners[++index] = api.getPileInfoAsync(deckId, "FaceDown0").thenAccept(x->ret.setFaceDown0(x.getPiles().getFaceDown0().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "FaceDown1").thenAccept(x->ret.setFaceDown1(x.getPiles().getFaceDown1().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "FaceDown2").thenAccept(x->ret.setFaceDown2(x.getPiles().getFaceDown2().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "FaceDown3").thenAccept(x->ret.setFaceDown3(x.getPiles().getFaceDown3().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "FaceDown4").thenAccept(x->ret.setFaceDown4(x.getPiles().getFaceDown4().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "FaceDown5").thenAccept(x->ret.setFaceDown5(x.getPiles().getFaceDown5().getCards()));
-        runners[++index] = api.getPileInfoAsync(deckId, "FaceDown6").thenAccept(x->ret.setFaceDown6(x.getPiles().getFaceDown6().getCards()));
-
-        runners[++index] = api.getPileInfoAsync(deckId, "DrawDown").thenAccept(x->ret.setDrawDown(x.getPiles().getDrawDown().getCards()));
 
         CompletableFuture.allOf(runners).join();
 
