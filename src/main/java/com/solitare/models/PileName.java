@@ -26,10 +26,14 @@ public enum PileName {
 
     private final String pile;
     private final String category;
+    private final Integer num;
 
     PileName(String pile) {
         this.pile = pile;
         category = pile.replaceAll("\\d","");
+        if (!pile.equals(category)){
+            num = Integer.parseInt(String.valueOf(pile.charAt(pile.length()-1)));
+        }else num = null;
     }
 
     @JsonValue
@@ -39,6 +43,10 @@ public enum PileName {
 
     public String getCategory() {
         return category;
+    }
+
+    public Integer getNum() {
+        return num;
     }
 
     @Override
