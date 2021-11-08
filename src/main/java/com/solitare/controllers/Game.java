@@ -28,17 +28,17 @@ public class Game {
     }
 
     @PostMapping("/game")
-    public ResponseEntity<Integer> generate(@RequestParam(name = "id", required = false) Integer id){
+    public ResponseEntity<Integer> generate(@PathVariable(name = "id", required = false) Integer id){
         return ResponseEntity.ok(gameBoard.newGame(id));
     }
 
     @GetMapping("/game")
-    public ResponseEntity<GameBoard> getBoard(@RequestParam("id") Integer id) throws Exception {
+    public ResponseEntity<GameBoard> getBoard(@PathVariable("id") Integer id) throws Exception {
         return ResponseEntity.ok(gameBoard.getGame(id));
     }
 
     @PostMapping("/game/move")
-    public ResponseEntity<?> makeMove(@RequestParam("from")String from, @RequestParam("depth") int depth, @RequestParam("to") String to, @RequestParam("id") int id){
+    public ResponseEntity<?> makeMove(@PathVariable("from")String from, @PathVariable("depth") int depth, @PathVariable("to") String to, @PathVariable("id") int id){
         logic.makeMove(from, to, depth, id);
         return ResponseEntity.ok().build();
     }

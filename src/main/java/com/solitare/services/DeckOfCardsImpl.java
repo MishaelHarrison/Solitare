@@ -24,7 +24,7 @@ public class DeckOfCardsImpl implements DeckOfCards {
 
     @Override
     public InitialResponse createDeck() {
-        String url = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1";
+        String url = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=" + 1;
         val res = template.getForEntity(url, InitialResponse.class);
         logger.trace("status code: "+res.getStatusCode()+" ran request: GET:" + url);
         return res.getBody();
@@ -32,7 +32,7 @@ public class DeckOfCardsImpl implements DeckOfCards {
 
     @Override
     public DrawResponse drawFullDeck(String deckId) {
-        String url = "https://deckofcardsapi.com/api/deck/" + deckId + "/draw/?count=52";
+        String url = "https://deckofcardsapi.com/api/deck/" + deckId + "/draw/?count=" + 52;
         val res = template.getForEntity(url, DrawResponse.class);
         logger.trace("status code: "+res.getStatusCode()+" ran request: GET:" + url);
         return res.getBody();
