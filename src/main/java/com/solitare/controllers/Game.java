@@ -4,6 +4,7 @@ import com.solitare.exceptions.DataException;
 import com.solitare.exceptions.GameLogicException;
 import com.solitare.models.GameBoard;
 import com.solitare.services.BoardManagerService;
+import com.solitare.services.DeckOfCards;
 import com.solitare.services.GameLogicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,17 +28,17 @@ public class Game {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/game")
+    @PostMapping({"/game", "/game/{id}"})
     public ResponseEntity<Integer> generate(@PathVariable(name = "id", required = false) Integer id){
         return ResponseEntity.ok(gameBoard.newGame(id));
     }
 
-    @GetMapping("/game")
-    public ResponseEntity<GameBoard> getBoard(@PathVariable("id") Integer id) throws Exception {
+    @GetMapping("/game/{id}")
+    public ResponseEntity<GameBoard> getBoard(@PathVariable("id") Integer id){
         return ResponseEntity.ok(gameBoard.getGame(id));
     }
 
-    @PostMapping("/game/move")
+    @PostMapping("/game/{id}/move/{from}/{to}/{depth}")
     public ResponseEntity<?> makeMove(@PathVariable("from")String from, @PathVariable("depth") int depth, @PathVariable("to") String to, @PathVariable("id") int id){
         logic.makeMove(from, to, depth, id);
         return ResponseEntity.ok().build();
