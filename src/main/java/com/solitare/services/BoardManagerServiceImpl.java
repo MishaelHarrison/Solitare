@@ -3,12 +3,13 @@ package com.solitare.services;
 import com.solitare.exceptions.DataException;
 import com.solitare.models.*;
 import com.solitare.repositories.GameRepo;
-import lombok.val;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -31,17 +32,17 @@ public class BoardManagerServiceImpl implements BoardManagerService{
         for (PileName pile: PileName.values()){
             int amount = 0;
             switch (pile.getCategory()){
-                case "faceDown":
+                case "playDown":
                     amount = pile.getNum();
                     break;
-                case "faceUp":
+                case "playUp":
                     amount = 1;
                     break;
                 case "drawDown":
                     amount = 24;
                     break;
             }
-            api.addToPile(deckId, pile.getPile(), deck.subList(0,amount).toArray(new Card[0]));
+            api.addToPile(deckId, pile, deck.subList(0,amount).toArray(new Card[0]));
             deck.subList(0,amount).clear();
         }
 
@@ -52,29 +53,30 @@ public class BoardManagerServiceImpl implements BoardManagerService{
 
     @Override
     public GameBoard getGame(int id){
+        return getGame(id, PileName.values());
+    }
+
+    @Override
+    public GameBoard getGame(int id, PileName[] piles) {
         String gameId = repo.findById(id).orElseThrow(()->new DataException("Game not found")).getGameId();
-        val runners = new CompletableFuture[12];
+        List<CompletableFuture<?>> runners = new ArrayList<>();
         GameBoard ret = new GameBoard();
         ret.setBoard(new HashMap<>());
-        int index = 0;
 
-        for(PileName pile: new PileName[]{PileName.FaceUp0, PileName.FaceUp1, PileName.FaceUp2,
-                PileName.FaceUp3, PileName.FaceUp4, PileName.FaceUp5, PileName.FaceUp6,
-                PileName.Win0, PileName.Win1, PileName.Win2, PileName.Win3, PileName.DrawUp}){
-            CompletableFuture<FullResponse> response = api.getPileInfoAsync(gameId, pile.getPile());
-            if (index == 0){
+        Arrays.stream(piles).filter(PileName::isVisible).forEach(pile->{
+            CompletableFuture<FullResponse> response = api.getPileInfoAsync(gameId, pile);
+            if (runners.size() == 0){
                 response = response.thenApply(x->{
-                    for (PileName innerPile: new PileName[]{PileName.FaceDown0, PileName.FaceDown1, PileName.FaceDown2,
-                            PileName.FaceDown3, PileName.FaceDown4, PileName.FaceDown5, PileName.FaceDown6, PileName.DrawDown}){
-                        ret.getBoard().put(innerPile, x.getRemainingFromPileName(innerPile));
-                    }
+                    Arrays.stream(piles).filter(y->!y.isVisible()).forEach(innerPile->
+                            ret.getBoard().put(innerPile, x.getRemainingFromPileName(innerPile))
+                    );
                     return x;
                 });
             }
-            runners[index++] = response.thenAccept(x-> ret.getBoard().put(pile, x.getPileFromPileName(pile)));
-        }
+            runners.add(response.thenAccept(x-> ret.getBoard().put(pile, x.getPileFromPileName(pile))));
+        });
 
-        CompletableFuture.allOf(runners).join();
+        CompletableFuture.allOf(runners.toArray(new CompletableFuture[0])).join();
         return ret;
     }
 }

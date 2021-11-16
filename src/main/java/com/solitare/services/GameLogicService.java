@@ -1,5 +1,7 @@
 package com.solitare.services;
 
+import com.solitare.models.PileName;
+
 public interface GameLogicService {
-    void makeMove(String from, String to, int depth, int gameId);
+    void makeMove(PileName from, PileName to, int depth, int gameId);
 }
