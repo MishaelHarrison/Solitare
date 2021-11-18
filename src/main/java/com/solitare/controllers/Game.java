@@ -2,8 +2,8 @@ package com.solitare.controllers;
 
 import com.solitare.exceptions.DataException;
 import com.solitare.exceptions.GameLogicException;
-import com.solitare.models.GameBoard;
-import com.solitare.models.PileName;
+import com.solitare.models.dto.GameBoard;
+import com.solitare.models.enums.PileName;
 import com.solitare.services.BoardManagerService;
 import com.solitare.services.GameLogicService;
 import org.slf4j.Logger;

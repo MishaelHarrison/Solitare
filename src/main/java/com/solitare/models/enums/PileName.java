@@ -1,4 +1,4 @@
-package com.solitare.models;
+package com.solitare.models.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

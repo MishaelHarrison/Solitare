@@ -1,16 +1,20 @@
-package com.solitare.services;
+package com.solitare.services.implementations;
 
 import com.solitare.exceptions.DataException;
 import com.solitare.exceptions.GameLogicException;
 import com.solitare.models.Card;
-import com.solitare.models.FullResponse;
-import com.solitare.models.PileName;
+import com.solitare.models.values.FullResponse;
+import com.solitare.models.enums.PileName;
 import com.solitare.repositories.GameRepo;
+import com.solitare.services.DeckOfCards;
+import com.solitare.services.GameLogicService;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,6 +27,8 @@ public class GameLogicServiceImpl implements GameLogicService {
     @Autowired
     private GameRepo repo;
 
+    private static final int DRAW_PILE_TRANSFER_SIZE = 3;
+
     @Override
     public void makeMove(PileName from, PileName to, int depth, int gameId) {
         String deckId = repo.findById(gameId).orElseThrow(() -> new DataException("Game not found")).getGameId();
@@ -32,19 +38,21 @@ public class GameLogicServiceImpl implements GameLogicService {
     }
 
     private void commitMove(PileName from, PileName to, int depth, String deckId) {
-        List<Card> cards = api.drawFromPile(deckId, from, depth).getCards();
+        List<Card> cards = api.drawFromPile(deckId, from, depth);
         if (from.getCategory().equals("drawDown") || to.getCategory().equals("drawDown")) Collections.reverse(cards);
         api.addToPile(deckId, to, cards.toArray(new Card[0]));
     }
 
     private int checkGameLogic(PileName from, PileName to, int depth, String deckId) {
         Card fromCard, toCard;
-        List<FullResponse> runners = Stream.of(api.getPileInfoAsync(deckId, from), api.getPileInfoAsync(deckId, to)).map(CompletableFuture::join).collect(Collectors.toList());
-        List<Card> fromPile = runners.get(0).getPileFromPileName(from);
-        if (to.getCategory().equals("drawUp")) return Math.min(fromPile.size(), 3);
+        List<List<Card>> runners = Stream.of(api.getPileInfoAsync(deckId, from), api.getPileInfoAsync(deckId, to)).map(x -> {
+            return (List<Card>) x.join().entrySet().stream().filter(e -> e.getValue() instanceof List && (((List) e.getValue()).size() == 0 || ((List<?>)e.getValue()).get(0) instanceof Card)).findFirst().get().getValue();
+        }).collect(Collectors.toList());
+        List<Card> fromPile = runners.get(0);
+        if (to.getCategory().equals("drawUp")) return Math.min(fromPile.size(), DRAW_PILE_TRANSFER_SIZE);
         if (fromPile.size() < depth) throw new GameLogicException("cannot target more cards than exist");
         fromCard = fromPile.get(fromPile.size() - depth);
-        List<Card> toPile = runners.get(1).getPileFromPileName(to);
+        List<Card> toPile = runners.get(1);
         if (to.getCategory().equals("drawDown")) {
             if (toPile != null && toPile.size() != 0)
                 throw new GameLogicException("can only flip draw deck when the face-down side is depleted");

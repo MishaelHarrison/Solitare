@@ -1,4 +1,4 @@
-package com.solitare.models;
+package com.solitare.models.values;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

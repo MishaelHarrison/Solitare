@@ -1,4 +1,4 @@
-package com.solitare.models;
+package com.solitare.models.entities;
 
 import lombok.*;
 
