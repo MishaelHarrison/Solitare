@@ -3,19 +3,15 @@ package com.solitare.services.implementations;
 import com.solitare.exceptions.DataException;
 import com.solitare.exceptions.GameLogicException;
 import com.solitare.models.Card;
-import com.solitare.models.values.FullResponse;
 import com.solitare.models.enums.PileName;
 import com.solitare.repositories.GameRepo;
 import com.solitare.services.DeckOfCards;
 import com.solitare.services.GameLogicService;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,6 +56,9 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
         toCard = toPile == null || toPile.size() == 0 ? null : toPile.get(toPile.size() - 1);
         switch (to.getCategory()) {
+            case "playDown":
+                if (toPile != null && toPile.size() > 0) throw new GameLogicException("invalid move during current game state");
+                break;
             case "playUp":
                 if (from.getCategory().equals("playDown")) break;
                 if (!playNextVal(fromCard, toCard)) throw new GameLogicException("invalid card value match");

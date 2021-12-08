@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
+@CrossOrigin("*")
 @RestController
 public class Game {
 
@@ -42,7 +44,7 @@ public class Game {
     @GetMapping({"/game/{id}", "/game/{id}/{piles}"})
     public ResponseEntity<GameBoard> getBoard(@PathVariable("id") Integer id, @PathVariable(name = "piles", required = false) String piles){
         if (piles == null) return ResponseEntity.ok(gameBoard.getGame(id));
-        return ResponseEntity.ok(gameBoard.getGame(id, (PileName[]) Arrays.stream(piles.split(",")).map(PileName::fromString).toArray()));
+        return ResponseEntity.ok(gameBoard.getGame(id, Arrays.stream(piles.split(",")).map(PileName::fromString).toArray(PileName[]::new)));
     }
 
     @PostMapping("/game/{id}/move/{from}/{to}/{depth}")
