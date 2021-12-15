@@ -56,11 +56,11 @@ public class GameLogicServiceImpl implements GameLogicService {
         }
         toCard = toPile == null || toPile.size() == 0 ? null : toPile.get(toPile.size() - 1);
         switch (to.getCategory()) {
-            case "playDown":
-                if (toPile != null && toPile.size() > 0) throw new GameLogicException("invalid move during current game state");
-                break;
             case "playUp":
-                if (from.getCategory().equals("playDown")) break;
+                if (from.getCategory().equals("playDown")) {
+                    if ((toPile != null ? toPile.size() : 0) > 0) throw new GameLogicException("invalid move with current game state");
+                        break;
+                }
                 if (!playNextVal(fromCard, toCard)) throw new GameLogicException("invalid card value match");
                 break;
             case "win":
